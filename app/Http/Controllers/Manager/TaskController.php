@@ -36,12 +36,18 @@ class TaskController extends Controller
             'assigned_to' => 'nullable|exists:users,id',
         ]);
 
+        $department_id = Auth::user()->department_id;
+
+        if (is_null($department_id)) {
+            return redirect()->back()->withInput()->withErrors(['department_id' => 'You are not assigned to any department.']);
+        }
+
         Task::create([
             'title' => $request->title,
             'description' => $request->description,
             'priority' => $request->priority,
             'due_date' => $request->due_date,
-            'department_id' => Auth::user()->department_id,
+            'department_id' => $department_id,
             'assigned_to' => $request->assigned_to,
             'created_by' => Auth::id(),
         ]);

@@ -26,18 +26,18 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    Route::middleware('role:admin')->prefix('admin.')->name('admin.')->group(function () {
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboard::class,'index'])->name('dashboard');
         Route::resource('departments', DepartmentController::class);
         Route::resource('users', UserController::class);
     });
 
-    Route::middleware('role:manager')->prefix('manager.')->group(function () {
+    Route::middleware('role:manager')->prefix('manager')->name('manager.')->group(function () {
         Route::get('/dashboard', [ManagerDashboard::class,'index'])->name('dashboard');
         Route::resource('tasks', TaskController::class);
     });
 
-    Route::middleware('role:staff')->prefix('staff.')->group(function () {
+    Route::middleware('role:staff')->prefix('staff')->name('staff.')->group(function () {
         Route::get('/dashboard', [StaffDashboard::class,'index'])->name('dashboard');
     });
 });
