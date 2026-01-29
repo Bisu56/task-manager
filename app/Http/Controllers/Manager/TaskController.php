@@ -56,11 +56,6 @@ class TaskController extends Controller
                          ->with('success', 'Task created successfully.');
     }
 
-    public function show(Task $task)
-    {
-        return view('manager.tasks.show', compact('task'));
-    }
-
     public function edit(Task $task)
     {
         $staffs = User::where('role', 'staff')
@@ -94,10 +89,17 @@ class TaskController extends Controller
                          ->with('success', 'Task deleted successfully.');
     }
 
-    private function authorizeTask(Task $task)
-    {
-        if ($task->department_id !== Auth::user()->department_id) {
-            abort(403, 'Unauthorized action.');
-        }
+private function authorizeTask(Task $task)
+{
+    if ($task->department_id !== Auth::user()->department_id) {
+        abort(403, 'Unauthorized action.');
     }
+}
+
+public function show(Task $task)
+{
+    $task->load(['comments.user', 'files.user']);
+    return view('manager.tasks.show', compact('task'));
+}
+
 }

@@ -33,4 +33,40 @@ class CommentController extends Controller
             'time' => now()->diffForHumans(),
         ]);
     }
+
+    public function update(Request $request, Comment $comment)
+{
+    if (
+        Auth::user()->role !== 'admin' &&
+        $comment->user_id !== Auth::id()
+    ) {
+        abort(403);
+    }
+
+    $request->validate([
+        'comment' => 'required|string'
+    ]);
+
+    $comment->update([
+        'comment' => $request->comment
+    ]);
+
+    return response()->json(['success' => true]);
+}
+
+public function destroy(Comment $comment)
+{
+    if (
+        Auth::user()->role !== 'admin' &&
+        $comment->user_id !== Auth::id()
+    ) {
+        abort(403);
+    }
+
+    $comment->delete();
+
+    return response()->json(['success' => true]);
+}
+
+
 }

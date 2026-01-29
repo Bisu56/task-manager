@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DepartmentController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Manager\TaskController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\TaskFileController;
 
 
 
@@ -28,6 +29,19 @@ Route::middleware('auth')->group(function () {
     Route::post('/tasks/{task}/comments', [CommentController::class, 'store'])
     ->middleware('auth')
     ->name('tasks.comments.store');
+
+    Route::put('/comments/{comment}', [CommentController::class, 'update'])
+    ->name('comments.update');
+
+    Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])
+    ->name('comments.destroy');
+
+    Route::post('/tasks/{task}/files', [TaskFileController::class, 'store'])
+    ->name('tasks.files.store');
+
+    Route::delete('/files/{file}', [TaskFileController::class, 'destroy'])
+    ->name('tasks.files.destroy');
+
 
 });
 
