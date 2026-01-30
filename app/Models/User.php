@@ -57,6 +57,11 @@ class User extends Authenticatable
         return $this->belongsTo(Department::class);
     }
 
+    public function activities()
+    {
+        return $this->hasMany(ActivityLog::class);
+    }
+
     /**
      * Get the attributes that should be cast.
      *

@@ -1,64 +1,52 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Manager Dashboard') }}
+            {{ __('My Assigned Tasks') }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Stats cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-900">Total Tasks</h3>
-                    <p class="mt-1 text-3xl font-semibold text-gray-700">{{ $totalTasks }}</p>
-                </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-900">Pending Tasks</h3>
-                    <p class="mt-1 text-3xl font-semibold text-yellow-700">{{ $pendingTasks }}</p>
-                </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-900">In Progress Tasks</h3>
-                    <p class="mt-1 text-3xl font-semibold text-blue-700">{{ $inProgressTasks }}</p>
-                </div>
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h3 class="text-lg font-medium text-gray-900">Completed Tasks</h3>
-                    <p class="mt-1 text-3xl font-semibold text-green-700">{{ $completedTasks }}</p>
-                </div>
-            </div>
-
-            <!-- Recent Tasks -->
-            <div class="mt-8 bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <h3 class="text-lg font-medium text-gray-900">Recent Department Tasks</h3>
-                    <div class="mt-4">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 bg-white border-b border-gray-200">
+                    @if ($tasks->isEmpty())
+                        <div class="text-center py-12">
+                            <h3 class="text-lg font-medium text-gray-900">{{ __('No tasks assigned') }}</h3>
+                            <p class="mt-1 text-sm text-gray-500">
+                                {{ __("You currently don't have any tasks assigned to you.") }}
+                            </p>
+                        </div>
+                    @else
                         <div class="align-middle inline-block min-w-full">
                             <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Title
+                                                {{ __('Title') }}
                                             </th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Assigned To
+                                                {{ __('Created By') }}
                                             </th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Status
+                                                {{ __('Status') }}
                                             </th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Due Date
+                                                {{ __('Due Date') }}
+                                            </th>
+                                            <th scope="col" class="relative px-6 py-3">
+                                                <span class="sr-only">{{ __('Actions') }}</span>
                                             </th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                        @forelse ($recentTasks as $task)
+                                        @foreach ($tasks as $task)
                                             <tr>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    <a href="{{ route('manager.tasks.show', $task) }}" class="text-blue-600 hover:text-blue-900">{{ $task->title }}</a>
+                                                    <a href="{{ route('staff.tasks.show', $task) }}" class="text-blue-600 hover:text-blue-900">{{ $task->title }}</a>
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $task->assignedUser?->name ?? 'Unassigned' }}
+                                                    {{ $task->creator?->name ?? 'N/A' }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     @php
@@ -77,19 +65,23 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $task->due_date ? $task->due_date->format('M d, Y') : 'N/A' }}
                                                 </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                                                    No recent tasks for your department.
+                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <a href="{{ route('staff.tasks.show', $task) }}" class="inline-flex items-center px-2.5 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                                                        {{ __('View') }}
+                                                    </a>
                                                 </td>
                                             </tr>
-                                        @endforelse
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-                    </div>
+
+                        <div class="mt-4">
+                            {{ $tasks->links() }}
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

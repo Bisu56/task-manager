@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Manager\DashboardController as ManagerDashboard;
 use App\Http\Controllers\Staff\DashboardController as StaffDashboard;
@@ -59,7 +60,18 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('role:staff')->prefix('staff')->name('staff.')->group(function () {
         Route::get('/dashboard', [StaffDashboard::class,'index'])->name('dashboard');
+        Route::resource('tasks', \App\Http\Controllers\Staff\TaskController::class)->only(['index', 'show']);
     });
+
+
+    Route::get('/notifications', function () {
+    Auth::user()->unreadNotifications->markAsRead();
+
+    return view('notifications.index', [
+        'notifications' => Auth::user()->notifications
+    ]);
+})->name('notifications');
+
 });
 
 require __DIR__.'/auth.php';

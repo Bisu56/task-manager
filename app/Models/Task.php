@@ -23,6 +23,10 @@ class Task extends Model
         'created_by',
     ];
 
+    protected $casts = [
+        'due_date' => 'datetime',
+    ];
+
     public function department()
     {
         return $this->belongsTo(Department::class);
@@ -45,5 +49,10 @@ class Task extends Model
     public function files()
     {
         return $this->hasMany(TaskFile::class);
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(ActivityLog::class);
     }
 }

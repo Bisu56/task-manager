@@ -14,7 +14,7 @@ class UserController extends Controller
     {
         $users = User::Where('role', '!=', 'admin')
                         ->with('department')
-                        ->get();
+                        ->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Task;
-use Illuminate\Http\Request;
 use App\Models\Comment;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Notifications\TaskNotification;
 
 class CommentController extends Controller
 {
@@ -16,57 +16,92 @@ class CommentController extends Controller
             'comment' => 'required|string',
         ]);
 
+        // Staff can only comment on their assigned task
         if (
             Auth::user()->role === 'staff' &&
             $task->assigned_to !== Auth::id()
         ) {
             abort(403, 'Unauthorized action.');
         }
-        $task->comments()->create([
+
+        $comment = $task->comments()->create([
             'user_id' => Auth::id(),
             'comment' => $request->comment,
         ]);
 
+        logActivity(
+            'comment_added',
+            'added a comment',
+            $task->id
+        );
+
+        // 🔔 Notify assigned staff & task creator (except self)
+        $users = collect([
+            $task->assignedUser ?? null,
+            $task->creator ?? null,
+        ])->filter()->unique('id');
+
+        foreach ($users as $user) {
+            if ($user->id !== Auth::id()) {
+                $user->notify(new TaskNotification(
+                    Auth::user()->name . ' commented on task: ' . $task->title,
+                    route('manager.tasks.show', $task->id)
+                ));
+            }
+        }
+
         return response()->json([
-            'user_id' => Auth::user()->name,
-            'comment' => $request->comment,
-            'time' => now()->diffForHumans(),
+            'user'    => Auth::user()->name,
+            'comment' => $comment->comment,
+            'time'    => $comment->created_at->diffForHumans(),
         ]);
     }
 
     public function update(Request $request, Comment $comment)
-{
-    if (
-        Auth::user()->role !== 'admin' &&
-        $comment->user_id !== Auth::id()
-    ) {
-        abort(403);
+    {
+        // Only admin or comment owner can update
+        if (
+            Auth::user()->role !== 'admin' &&
+            $comment->user_id !== Auth::id()
+        ) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $request->validate([
+            'comment' => 'required|string',
+        ]);
+
+        $comment->update([
+            'comment' => $request->comment,
+        ]);
+
+        logActivity(
+            'comment_updated',
+            'updated a comment',
+            $comment->task_id
+        );
+
+        return response()->json(['success' => true]);
     }
 
-    $request->validate([
-        'comment' => 'required|string'
-    ]);
+    public function destroy(Comment $comment)
+    {
+        // Only admin or comment owner can delete
+        if (
+            Auth::user()->role !== 'admin' &&
+            $comment->user_id !== Auth::id()
+        ) {
+            abort(403, 'Unauthorized action.');
+        }
 
-    $comment->update([
-        'comment' => $request->comment
-    ]);
+        $comment->delete();
 
-    return response()->json(['success' => true]);
-}
+        logActivity(
+            'comment_deleted',
+            'deleted a comment',
+            $comment->task_id
+        );
 
-public function destroy(Comment $comment)
-{
-    if (
-        Auth::user()->role !== 'admin' &&
-        $comment->user_id !== Auth::id()
-    ) {
-        abort(403);
+        return response()->json(['success' => true]);
     }
-
-    $comment->delete();
-
-    return response()->json(['success' => true]);
-}
-
-
 }

@@ -24,7 +24,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <a href="{{ route('manager.tasks.index') }}" class="text-sm text-blue-600 hover:underline">Back to tasks</a>
+                                <a href="{{ route('staff.tasks.index') }}" class="text-sm text-blue-600 hover:underline">Back to tasks</a>
                             </div>
 
                             <div class="mt-6 prose max-w-none">
@@ -59,26 +59,10 @@
                                                         <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">New</span>
                                                     @endif
                                                 </div>
-                                                @canany(['update-comment', 'delete-comment'], $comment)
-                                                    <div class="flex space-x-2">
-                                                        <button onclick="startEditComment({{ $comment->id }})" class="text-sm font-medium text-blue-600 hover:text-blue-800">Edit</button>
-                                                        <button onclick="deleteComment({{ $comment->id }})" class="text-sm font-medium text-red-600 hover:text-red-800">Delete</button>
-                                                    </div>
-                                                @endcanany
                                             </div>
                                             <div class="mt-1 text-gray-700 comment-content" data-original="{{ e($comment->comment) }}">
                                                 {!! nl2br(e($comment->comment)) !!}
                                             </div>
-                                            <!-- Edit form (hidden by default) -->
-                                            <form class="edit-comment-form mt-2 hidden" id="edit-form-{{ $comment->id }}">
-                                                @csrf
-                                                @method('PUT')
-                                                <textarea class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" rows="3" name="comment"></textarea>
-                                                <div class="mt-2 flex items-center space-x-2">
-                                                    <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Save</button>
-                                                    <button type="button" onclick="cancelEdit({{ $comment->id }})" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancel</button>
-                                                </div>
-                                            </form>
                                         </div>
                                     </div>
                                 @empty
@@ -88,7 +72,7 @@
                                 @endforelse
                             </div>
 
-                            <!-- Add new comment -->
+                            <!-- Add new comment (Staff can also add comments) -->
                             <div class="mt-6">
                                 <form id="new-comment-form">
                                     @csrf
@@ -113,16 +97,6 @@
                     <div class="bg-white shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <h5 class="text-lg font-medium text-gray-900">Attachments</h5>
-                            <div class="mt-4">
-                                <form action="{{ route('tasks.files.store', $task) }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="flex items-center">
-                                        <input type="file" name="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
-                                        <button type="submit" class="ml-3 inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Upload</button>
-                                    </div>
-                                </form>
-                            </div>
-
                             @if ($task->files->isNotEmpty())
                                 <ul role="list" class="mt-4 divide-y divide-gray-200">
                                     @foreach ($task->files as $file)
@@ -138,15 +112,6 @@
                                                     <p class="text-sm text-gray-500">{{ $file->size_human ?? '—' }} • {{ $file->created_at->diffForHumans() }}</p>
                                                 </div>
                                             </div>
-                                            @canany(['delete-file'], $file)
-                                                <form action="{{ route('tasks.files.destroy', $file) }}" method="POST" onsubmit="return confirm('Delete this file permanently?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900">
-                                                        <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
-                                                    </button>
-                                                </form>
-                                            @endcanany
                                         </li>
                                     @endforeach
                                 </ul>
@@ -222,21 +187,8 @@
                                 <span class="ml-2 text-sm text-gray-500">just now</span>
                                 <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">New</span>
                             </div>
-                            <div class="flex space-x-2">
-                                <button onclick="startEditComment(${data.id})" class="text-sm font-medium text-blue-600 hover:text-blue-800">Edit</button>
-                                <button onclick="deleteComment(${data.id})" class="text-sm font-medium text-red-600 hover:text-red-800">Delete</button>
-                            </div>
                         </div>
                         <div class="mt-1 text-gray-700 comment-content" data-original="${data.comment}">${data.comment.replace(/\n/g, '<br>')}</div>
-                        <form class="edit-comment-form mt-2 hidden" id="edit-form-${data.id}">
-                            @csrf
-                            @method('PUT')
-                            <textarea class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" rows="3" name="comment"></textarea>
-                            <div class="mt-2 flex items-center space-x-2">
-                                <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Save</button>
-                                <button type="button" onclick="cancelEdit(${data.id})" class="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-sm text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Cancel</button>
-                            </div>
-                        </form>
                     </div>
                 </div>`;
 
@@ -246,44 +198,6 @@
             alert('Failed to post comment: ' + err.message);
         }
     });
-
-    // Edit comment
-    window.startEditComment = function(id) {
-        const commentDiv = document.getElementById(`comment-${id}`);
-        const contentDiv = commentDiv.querySelector('.comment-content');
-        const original = contentDiv.dataset.original;
-
-        const form = commentDiv.querySelector('.edit-comment-form');
-        form.classList.remove('hidden');
-        form.querySelector('textarea').value = original;
-        contentDiv.classList.add('hidden');
-    };
-
-    window.cancelEdit = function(id) {
-        const commentDiv = document.getElementById(`comment-${id}`);
-        commentDiv.querySelector('.edit-comment-form').classList.add('hidden');
-        commentDiv.querySelector('.comment-content').classList.remove('hidden');
-    };
-
-    // Delete comment
-    window.deleteComment = async function(id) {
-        if (!confirm('Delete this comment permanently?')) return;
-
-        try {
-            const res = await fetch(`/comments/${id}`, {
-                method: 'DELETE',
-                headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
-            });
-
-            if (res.ok) {
-                document.getElementById(`comment-${id}`).remove();
-            } else {
-                alert('Could not delete comment');
-            }
-        } catch (err) {
-            alert('Network error: ' + err.message);
-        }
-    };
     </script>
     @endpush
 </x-app-layout>
