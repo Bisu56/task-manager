@@ -18,7 +18,19 @@
                                     <h3 class="text-2xl font-bold text-gray-900">{{ $task->title }}</h3>
                                     <div class="mt-1 flex items-center space-x-4 text-sm text-gray-500">
                                         <span>Priority: <span class="font-semibold">{{ ucfirst($task->priority) }}</span></span>
-                                        <span>Status: <span class="font-semibold">{{ ucfirst($task->status) }}</span></span>
+                                        <form action="{{ route('staff.tasks.update-status', $task) }}" method="POST" class="inline-flex items-center">
+                                            @csrf
+                                            @method('PUT')
+                                            <span>Status: </span>
+                                            <select name="status" onchange="this.form.submit()"
+                                                    class="ml-1 form-select rounded-md shadow-sm border-gray-300 focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm">
+                                                @foreach(['pending', 'in progress', 'completed', 'on hold'] as $statusOption)
+                                                    <option value="{{ $statusOption }}" @selected($task->status === $statusOption)>
+                                                        {{ ucfirst($statusOption) }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </form>
                                         @if($task->due_date)
                                             <span>Due: <span class="font-semibold">{{ $task->due_date->format('M d, Y') }}</span></span>
                                         @endif
@@ -97,6 +109,14 @@
                     <div class="bg-white shadow-sm sm:rounded-lg">
                         <div class="p-6">
                             <h5 class="text-lg font-medium text-gray-900">Attachments</h5>
+                            <div class="mt-4">
+                                <form action="{{ route('tasks.files.store', $task) }}" method="POST" enctype="multipart/form-data" class="flex items-center space-x-2">
+                                    @csrf
+                                    <input type="file" name="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                                    <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Upload</button>
+                                </form>
+                            </div>
+
                             @if ($task->files->isNotEmpty())
                                 <ul role="list" class="mt-4 divide-y divide-gray-200">
                                     @foreach ($task->files as $file)
@@ -107,7 +127,7 @@
                                                 </div>
                                                 <div class="flex-1 min-w-0">
                                                     <p class="text-sm font-medium text-gray-900 truncate">
-                                                        <a href="{{ $file->getUrl() }}" target="_blank" class="hover:underline">{{ $file->original_name ?? $file->file_name }}</a>
+                                                        <a href="{{ $file->url }}" target="_blank" class="hover:underline">{{ $file->original_name ?? $file->file_name }}</a>
                                                     </p>
                                                     <p class="text-sm text-gray-500">{{ $file->size_human ?? '—' }} • {{ $file->created_at->diffForHumans() }}</p>
                                                 </div>

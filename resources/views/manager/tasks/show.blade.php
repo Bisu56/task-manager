@@ -133,7 +133,7 @@
                                                 </div>
                                                 <div class="flex-1 min-w-0">
                                                     <p class="text-sm font-medium text-gray-900 truncate">
-                                                        <a href="{{ $file->getUrl() }}" target="_blank" class="hover:underline">{{ $file->original_name ?? $file->file_name }}</a>
+                                                        <a href="{{ $file->url }}" target="_blank" class="hover:underline">{{ $file->original_name ?? $file->file_name }}</a>
                                                     </p>
                                                     <p class="text-sm text-gray-500">{{ $file->size_human ?? '—' }} • {{ $file->created_at->diffForHumans() }}</p>
                                                 </div>

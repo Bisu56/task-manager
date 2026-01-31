@@ -22,4 +22,9 @@ class ActivityLog extends Model
     {
         return $this->belongsTo(Task::class);
     }
+
+    public function causer()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

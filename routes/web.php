@@ -61,6 +61,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('role:staff')->prefix('staff')->name('staff.')->group(function () {
         Route::get('/dashboard', [StaffDashboard::class,'index'])->name('dashboard');
         Route::resource('tasks', \App\Http\Controllers\Staff\TaskController::class)->only(['index', 'show']);
+        // Add the new route for updating task status
+        Route::put('tasks/{task}/update-status', [\App\Http\Controllers\Staff\TaskController::class, 'updateStatus'])->name('tasks.update-status');
     });
 
 

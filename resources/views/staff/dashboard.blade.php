@@ -49,6 +49,9 @@
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Due Date
                                             </th>
+                                            <th scope="col" class="relative px-6 py-3">
+                                                <span class="sr-only">Actions</span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
@@ -58,16 +61,17 @@
                                                     {{ $task->title }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $task->createdBy?->name ?? 'N/A' }}
+                                                    {{ $task->creator?->name ?? 'N/A' }}
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     @php
                                                         $badgeClass = '';
                                                         switch (strtolower($task->status)) {
                                                             case 'pending': $badgeClass = 'bg-yellow-100 text-yellow-800'; break;
-                                                            case 'in_progress': $badgeClass = 'bg-blue-100 text-blue-800'; break;
+                                                            case 'in progress': $badgeClass = 'bg-blue-100 text-blue-800'; break;
                                                             case 'completed': $badgeClass = 'bg-green-100 text-green-800'; break;
-                                                            case 'cancelled': $badgeClass = 'bg-gray-100 text-gray-800'; break;
+                                                            case 'on hold': $badgeClass = 'bg-gray-100 text-gray-800'; break;
+                                                            default: $badgeClass = 'bg-gray-100 text-gray-800'; break; // Added default case
                                                         }
                                                     @endphp
                                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $badgeClass }}">
@@ -77,10 +81,13 @@
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {{ $task->due_date ? $task->due_date->format('M d, Y') : 'N/A' }}
                                                 </td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                                    <a href="{{ route('staff.tasks.show', $task->id) }}" class="text-blue-600 hover:text-blue-900">View</a>
+                                                </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                                <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                                                     No recent tasks assigned to you.
                                                 </td>
                                             </tr>
