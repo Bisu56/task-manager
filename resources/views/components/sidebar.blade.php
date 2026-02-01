@@ -1,8 +1,7 @@
 <div class="w-64 bg-gray-800 text-white min-h-screen p-4">
     <div class="flex items-center mb-6">
         <a href="{{ route('dashboard') }}" class="flex items-center">
-            <x-application-logo class="block h-9 w-auto fill-current text-gray-200" />
-            <span class="ml-3 text-lg font-semibold">{{ config('app.name', 'Laravel') }}</span>
+            <x-application-logo class="block w-full h-full fill-current text-gray-200" />
         </a>
     </div>
 
